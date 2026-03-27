@@ -1,64 +1,98 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
-import React, {useState} from 'react'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
-import Checkbox from 'expo-checkbox';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import React, { useState } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import Checkbox from "expo-checkbox";
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const styles = StyleSheet.create({
-  screen:{
+  screen: {
     flex: 1,
-    backgroundColor: '#fbfbfb',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#fbfbfb",
+    alignItems: "center",
+  },
+  scrollContent: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
   },
   container: {
-    width: '100%',
+    width: "100%",
     maxWidth: 400,
     paddingHorizontal: 20,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
-  indexContainer:{
-    flexDirection: 'row',
+  indexContainer: {
+    flexDirection: "row",
     marginBottom: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  signinText:{
-    color: '#000000',
-    borderWidth:0,
-    fontSize:30,
+  signinText: {
+    color: "#000000",
+    borderWidth: 0,
+    fontSize: 30,
     marginLeft: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-  ButtonText:{
-    borderWidth:0,
-    fontSize:30,
+  ButtonText: {
+    borderWidth: 0,
+    fontSize: 30,
   },
-  p:{
-    color: '#999',
+  p: {
+    color: "#999",
     marginBottom: 25,
   },
-  label:{
-    borderWidth:0,
-    fontSize:16,
-    fontWeight: 'bold',
+  label: {
+    borderWidth: 0,
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 10,
   },
-  inputContainer:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
     height: 55,
     borderWidth: 1,
-    borderColor: '#b3b2b2',
+    borderColor: "#b3b2b2",
     borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
-  input:{
+  input: {
     flex: 1,
     fontSize: 15,
     marginLeft: 10,
+  },
+  genderContainer: {
+    flexDirection: "row",
+    width: "100%",
+    height: 55,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRadius: 12,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    gap: 110,
+    marginBottom: 20,
+  },
+  radioButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  radioLabel: {
+    fontSize: 16,
+    color: "#424242",
   },
 });
 
@@ -66,54 +100,183 @@ const signup = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isChecked, setChecked] = useState(false);
   const router = useRouter();
+  const [gender, setGender] = useState("male");
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    { label: '대한민국', value: 'korea' },
+    { label: '미국', value: 'usa' },
+    { label: '일본', value: 'japan' },
+    { label: '중국', value: 'china' },
+  ]);
 
   return (
-      <View style={styles.screen}>
-        <View style={styles.container}>
+    <View style={styles.screen}>
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false} >
 
+        <View style={styles.container}>
           <View style={styles.indexContainer}>
-            <TouchableOpacity onPress={() => router.push('/')}>
-            <Text style={[styles.ButtonText, { color: '#000000', marginLeft: 5 }]}>{"<"}</Text>
+            <TouchableOpacity onPress={() => router.push("/")}>
+              <Text
+                style={[styles.ButtonText, { color: "#000000", marginLeft: 5 }]}
+              >
+                {"<"}
+              </Text>
             </TouchableOpacity>
             <Text style={styles.signinText}>회원가입</Text>
           </View>
 
-          <Text style={styles.p}>기존 정보와 연락처를 입력해 동아리에 가입해보세요.</Text>
-          
+          <Text style={styles.p}>
+            기존 정보와 연락처를 입력해 동아리에 가입해보세요.
+          </Text>
+
           <Text style={styles.label}>아이디</Text>
           <View style={styles.inputContainer}>
             <MaterialCommunityIcons name="at" size={20} color="#424242" />
-            <TextInput 
-              style={styles.input} 
-              placeholder="최대 16자 영문/숫자" 
+            <TextInput
+              style={styles.input}
+              placeholder="최대 16자 영문/숫자"
               placeholderTextColor="#424242"
             />
           </View>
 
           <Text style={styles.label}>이름</Text>
           <View style={styles.inputContainer}>
-            <MaterialCommunityIcons name="account" size={20} color="#424242" />
-            <TextInput 
-              style={styles.input} 
-              placeholder="이름을 입력하세요" 
+            <MaterialCommunityIcons
+              name="card-account-details-outline"
+              size={20}
+              color="#424242"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="이름을 입력하세요"
               placeholderTextColor="#424242"
             />
           </View>
 
+          <Text style={styles.label}>영문 이름</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="earth" size={20} color="#424242" />
+            <TextInput
+              style={styles.input}
+              placeholder="English name"
+              placeholderTextColor="#424242"
+            />
+          </View>
 
+          <Text style={styles.label}>비밀번호</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons
+              name="lock-outline"
+              size={20}
+              color="#424242"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="영문/숫자/특수문자 포함 9자 이상"
+              placeholderTextColor="#424242"
+            />
+          </View>
 
+          <Text style={styles.label}>비밀번호 확인</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons
+              name="shield-check-outline"
+              size={20}
+              color="#424242"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="비밀번호를 다시 입력하세요"
+              placeholderTextColor="#424242"
+            />
+          </View>
 
+          <Text style={styles.label}>생년월일</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons name="cake" size={20} color="#424242" />
+            <TextInput
+              style={styles.input}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor="#424242"
+            />
+          </View>
 
+          <Text style={styles.label}>성별</Text>
+          <View style={styles.genderContainer}>
+            <TouchableOpacity
+              style={styles.radioButton}
+              onPress={() => setGender("male")}
+            >
+              <MaterialCommunityIcons
+                name={gender === "male" ? "radiobox-marked" : "radiobox-blank"}
+                size={24}
+                color={gender === "male" ? "#5359c9" : "#999"}
+              />
+              <Text style={styles.radioLabel}>남성</Text>
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              style={styles.radioButton}
+              onPress={() => setGender("female")}
+            >
+              <MaterialCommunityIcons
+                name={
+                  gender === "female" ? "radiobox-marked" : "radiobox-blank"
+                }
+                size={24}
+                color={gender === "female" ? "#5359c9" : "#999"}
+              />
+              <Text style={styles.radioLabel}>여성</Text>
+            </TouchableOpacity>
+          </View>
 
+          <Text style={styles.label}>휴대폰 번호</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons
+              name="phone-outline"
+              size={20}
+              color="#424242"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="010-0000-0000"
+              placeholderTextColor="#424242"
+            />
+          </View>
 
+          <Text style={styles.label}>이메일</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons
+              name="email-outline"
+              size={20}
+              color="#424242"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="example@email.com"
+              placeholderTextColor="#424242"
+            />
+          </View>
 
-
+          <Text style={styles.label}>국적</Text>
+          <View style={styles.inputContainer}>
+            <MaterialCommunityIcons
+              name="flag-outline"
+              size={20}
+              color="#424242"
+            />
+            
+          </View>
 
 
         </View>
-      </View>
-  )
-}
+      </ScrollView>
+    </View>
+  );
+};
 
-export default signup
+export default signup;
