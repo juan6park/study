@@ -124,8 +124,11 @@ const styles = StyleSheet.create({
 
 const signup = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
   const [isChecked, setChecked] = useState(false);
+
   const router = useRouter();
+
   const [gender, setGender] = useState("male");
 
   const [open, setOpen] = useState(false);
@@ -146,8 +149,20 @@ const [passwordError, setPasswordError] = useState("");
 const [phoneError, setPhoneError] = useState("");
 
 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{9,}$/;
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 const phoneRegex = /^010-\d{3,4}-\d{4}$/;
+
+const [confirmPassword, setConfirmPassword] = useState("");
+const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+const handleConfirmPassword = (text : string) => {
+  setConfirmPassword(text);
+  if (text !== password) {
+    setConfirmPasswordError("비밀번호가 일치하지 않습니다.");
+  } else {
+    setConfirmPasswordError("");
+  }
+}
 
   return (
     <View style={styles.screen}>
@@ -215,7 +230,7 @@ const phoneRegex = /^010-\d{3,4}-\d{4}$/;
             />
             <TextInput
               style={styles.input}
-              placeholder="영문/숫자/특수문자 포함 9자 이상"
+              placeholder="영문/숫자/특수문자 포함 8자 이상"
               placeholderTextColor="#424242"
               secureTextEntry={!isPasswordVisible}
               value={password}
@@ -224,10 +239,17 @@ const phoneRegex = /^010-\d{3,4}-\d{4}$/;
                 setPasswordError(passwordRegex.test(text) ? "" : "형식이 맞지 않습니다.");
               }}
             />
+            <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)}>
+              <MaterialCommunityIcons
+                name={isPasswordVisible ? "eye-outline" : "eye-off-outline"}
+                size={20}
+                color="#424242"
+              />
+            </TouchableOpacity>
           </View>
 
           <Text style={styles.label}>비밀번호 확인</Text>
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, confirmPasswordError ? { borderColor: 'red' } : null]}>
             <MaterialCommunityIcons
               name="shield-check-outline"
               size={20}
@@ -237,6 +259,8 @@ const phoneRegex = /^010-\d{3,4}-\d{4}$/;
               style={styles.input}
               placeholder="비밀번호를 다시 입력하세요"
               placeholderTextColor="#424242"
+              value={confirmPassword}
+              onChangeText={handleConfirmPassword}
             />
           </View>
 
