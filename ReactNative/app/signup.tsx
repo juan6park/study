@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     height: 55,
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#b3b2b2",
     borderRadius: 12,
     alignItems: "center",
     paddingHorizontal: 20,
@@ -93,6 +93,32 @@ const styles = StyleSheet.create({
   radioLabel: {
     fontSize: 16,
     color: "#424242",
+  },
+  signinButton:{
+    width: '100%',
+    height: 44,
+    backgroundColor: '#5359c9',
+    borderRadius: 12,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  signinButtonText:{
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'normal',
+  },
+   loginContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    justifyContent: 'center',
+    width: '100%',
+  },
+  findText:{
+    fontSize: 14,
+    color: '#999',
   },
 });
 
@@ -214,7 +240,7 @@ const signup = () => {
               <MaterialCommunityIcons
                 name={gender === "male" ? "radiobox-marked" : "radiobox-blank"}
                 size={24}
-                color={gender === "male" ? "#5359c9" : "#999"}
+                color={gender === "male" ? "#5359c9" : "#000000"}
               />
               <Text style={styles.radioLabel}>남성</Text>
             </TouchableOpacity>
@@ -269,9 +295,29 @@ const signup = () => {
               size={20}
               color="#424242"
             />
-            
+            <DropDownPicker
+              open={open}
+              value={value}
+              items={items}
+              setOpen={setOpen}
+              setValue={setValue}
+              setItems={setItems}
+              placeholder="국적을 선택하세요"
+              style={{ borderWidth: 0, backgroundColor: 'transparent' }}
+              dropDownContainerStyle={{ borderWidth: 1, borderColor: '#b3b2b2' }}
+            />
           </View>
+          
+          <TouchableOpacity style={styles.signinButton}>
+          <Text style={styles.signinButtonText}>회원가입 완료</Text>
+          </TouchableOpacity>
 
+          <View style={styles.loginContainer}>
+            <Text style={styles.findText}>이미 계정이 있으신가요?</Text>
+            <TouchableOpacity onPress={() => router.push('/')}>
+            <Text style={[styles.ButtonText, { color: '#5359c9', marginLeft: 5 , fontSize: 14, fontWeight: 'bold'}]}>로그인</Text>
+            </TouchableOpacity>
+          </View>
 
         </View>
       </ScrollView>
