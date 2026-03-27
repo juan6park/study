@@ -127,6 +127,7 @@ const signup = () => {
   const [isChecked, setChecked] = useState(false);
   const router = useRouter();
   const [gender, setGender] = useState("male");
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
@@ -135,6 +136,18 @@ const signup = () => {
     { label: '일본', value: 'japan' },
     { label: '중국', value: 'china' },
   ]);
+
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [phone, setPhone] = useState("");
+
+const [emailError, setEmailError] = useState("");
+const [passwordError, setPasswordError] = useState("");
+const [phoneError, setPhoneError] = useState("");
+
+const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{9,}$/;
+const phoneRegex = /^010-\d{3,4}-\d{4}$/;
 
   return (
     <View style={styles.screen}>
@@ -194,7 +207,7 @@ const signup = () => {
           </View>
 
           <Text style={styles.label}>비밀번호</Text>
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, passwordError ? { borderColor: 'red' } : null]}>
             <MaterialCommunityIcons
               name="lock-outline"
               size={20}
@@ -204,6 +217,12 @@ const signup = () => {
               style={styles.input}
               placeholder="영문/숫자/특수문자 포함 9자 이상"
               placeholderTextColor="#424242"
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError(passwordRegex.test(text) ? "" : "형식이 맞지 않습니다.");
+              }}
             />
           </View>
 
@@ -261,7 +280,7 @@ const signup = () => {
           </View>
 
           <Text style={styles.label}>휴대폰 번호</Text>
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, phoneError ? { borderColor: 'red' } : null]}>
             <MaterialCommunityIcons
               name="phone-outline"
               size={20}
@@ -271,11 +290,16 @@ const signup = () => {
               style={styles.input}
               placeholder="010-0000-0000"
               placeholderTextColor="#424242"
+              value={phone}
+              onChangeText={(text) => {
+                setPhone(text);
+                setPhoneError(phoneRegex.test(text) ? "" : "형식이 맞지 않습니다.");
+              }}
             />
           </View>
 
           <Text style={styles.label}>이메일</Text>
-          <View style={styles.inputContainer}>
+          <View style={[styles.inputContainer, emailError ? { borderColor: 'red' } : null]}>
             <MaterialCommunityIcons
               name="email-outline"
               size={20}
@@ -285,6 +309,11 @@ const signup = () => {
               style={styles.input}
               placeholder="example@email.com"
               placeholderTextColor="#424242"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError(emailRegex.test(text) ? "" : "형식이 맞지 않습니다.");
+              }}
             />
           </View>
 
