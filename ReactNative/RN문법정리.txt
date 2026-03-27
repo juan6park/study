@@ -1,0 +1,38 @@
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import React, {useState} from 'react'
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+const styles = StyleSheet.create({
+	클래스명:{
+		flex: 숫자 (1은 화면 전체 채움)부모 박스 안에서 차지하는 비율
+		flexDirection: column/row 세로/가로로 쌓는 방향
+		justifyContent: column/row 메인 축 방향 정렬
+
+
+
+		color:
+		backgroundColor:
+
+		alighnItems:
+
+		width:
+		height:
+		maxWidth:
+
+		paddingHorizontal:
+		borderWidth:
+		borderRadius:
+		marginVertical:
+		marginBottom:
+		fontSize:
+		fontWeight:
+		flexDirection:
+		placeholder=
+
+		
+
+},
+	클래스명:{
+
+},
+});
