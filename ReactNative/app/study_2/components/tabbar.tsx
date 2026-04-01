@@ -6,22 +6,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 const styles = StyleSheet.create({
     tabbar:{
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: '#efefef',
+        justifyContent: 'space-around',
+        backgroundColor: '#e76161',
         width : '100%',
-        paddingHorizontal: 20,
-        paddingVertical: 5,
         position: 'absolute',
         bottom: 0,
         maxWidth: 400,
-    },
-    home:{
-    },
-    stack:{
-    },
-    activity:{
-    },
-    contact:{
+        paddingVertical: 12,
+        gap:-10,
+        alignItems: 'center',
     },
 })
 
@@ -32,26 +25,26 @@ const tabbar = () => {
 
     <View style={styles.tabbar}>
         <View>
-            <TouchableOpacity onPress={() => router.push("/study_2")}>
+            <TouchableOpacity onPress={() => router.push("/study_2")} style={{ alignItems: 'center' }}>
                 <MaterialCommunityIcons name="home-outline" size={24} color="black"/>
                 <Text>홈</Text>
             </TouchableOpacity>
         </View>
         <View>
             <TouchableOpacity onPress={() => router.push("/study_2/stack")}>
-                <MaterialCommunityIcons name="code-tags" size={24} color="black"/>
+                <MaterialCommunityIcons name="auto-fix" size={24} color="black"/>
                 <Text>기술</Text>
             </TouchableOpacity>
         </View>
         <View>
             <TouchableOpacity onPress={() => router.push("/study_2/activity")}>
-                <MaterialCommunityIcons name="bed-king-outline" size={24} color="black"/>
+                <MaterialCommunityIcons name="briefcase-outline" size={24} color="black"/>
                 <Text>활동</Text>
             </TouchableOpacity>
         </View>
         <View>
             <TouchableOpacity onPress={() => router.push("/study_2/contact")}>
-                <MaterialCommunityIcons name="account-outline" size={24} color="black"/>
+                <MaterialCommunityIcons name="email-outline" size={24} color="black"/>
                 <Text>연락</Text>
             </TouchableOpacity>
         </View>
