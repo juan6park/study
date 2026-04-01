@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#f9f9f9",
     width: "100%",
     maxWidth: 330,
     height: "90%",
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     flexDirection: "column",
     flex:1,
-    width: "93%",
+    width: "100%",
     gap:10,
   },
 });
@@ -155,11 +155,11 @@ const index = () => {
               <MaterialCommunityIcons name="account" size={30} color="#fff" />
             </View>
             <View style={{ flexDirection: "column", justifyContent: "center" }}>
-              <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold" }}>
+              <Text style={{ color: "#fff", fontSize: 18, fontWeight: "bold", paddingTop:2 }}>
                 박주안
               </Text>
               <Text
-                style={{ color: "#fff", fontSize: 12, fontWeight: "semibold" }}
+                style={{ color: "#fff", fontSize: 12, fontWeight: '500' , paddingTop:2}}
               >
                 프론트엔드& 앱 UI 학습자
               </Text>
@@ -173,7 +173,7 @@ const index = () => {
               }}
             >
               <Text
-                style={{ color: "#fff", fontSize: 14, fontWeight: "normal" }}
+                style={{ color: "#fff", fontSize: 12, fontWeight: '400' }}
               >
                 기획 의도가 보이는 화면을 만들고 싶습니다. 같은 내용을 웹과
                 앱으로 각각 구현해보며 UI 구조를 익히는 중입니다.
@@ -184,7 +184,7 @@ const index = () => {
                 <Text style={[styles.boxtext, { fontWeight: "normal" }]}>
                   전공
                 </Text>
-                <Text style={styles.boxtext}>학습</Text>
+                <Text style={styles.boxtext}>CS</Text>
               </View>
               <View style={styles.box}>
                 <Text style={[styles.boxtext, { fontWeight: "normal" }]}>

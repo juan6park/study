@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
     header:{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: '#e76161',
+        backgroundColor: '#f9f9f9',
         width : '100%',
         alignItems: 'center',
         position: 'absolute',

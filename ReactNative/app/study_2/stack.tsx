@@ -24,115 +24,83 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    backgroundColor: "#f4f4f4",
+    backgroundColor: "#f9f9f9",
     width: "100%",
     maxWidth: 330,
     height: "90%",
     maxHeight: 800,
-    alignItems: "flex-start",
+    alignItems: "center",
     position: "relative",
     overflow: "hidden",
   },
-  profile: {
-    backgroundColor: "#6581c9",
+  stackcontainer: {
     width: "93%",
-    height: 230,
-    borderRadius: 20,
-    position: "relative",
-    padding: 15,
-    alignItems: "flex-start",
-    flexDirection: "row",
-    gap: 15,
-  },
-  profileimage: {
-    backgroundColor: "#98ade4",
-    opacity: 0.8,
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  profilebox: {
-    position: "absolute",
-    justifyContent: "space-between",
-    bottom: 20,
-    flexDirection: "row",
-    gap: 15,
-    left: 15,
-    right: 15,
     flex: 1,
+    flexDirection: "column",
   },
-  box: {
-    backgroundColor: "#98ade4",
-    borderRadius: 12,
-    color: "#fff",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-    flex:1,
-    width: "80%",
-  },
-  boxtext: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  boxcontainer:{
-    paddingTop: 10,
-    justifyContent: "space-between",
-    flexDirection: "row",
-    gap: 15,
-  },
-  boxcontainer1:{
-    flex:1,
-    width: "93%",
-    paddingTop: 15,
-    justifyContent: "space-between",
-    flexDirection: "row",
-    gap: 15,
-  },
-  box1:{
+  stackbox: {
+    position: "relative",
+    width: "100%",
     backgroundColor: "#ffffff",
     borderRadius: 12,
-    color: "#fff",
-    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 34,
     paddingVertical: 10,
+    marginTop: 10,
+    height: 60,
   },
-  boxtext1: {
-    paddingTop:1,
-    color: "#000000",
+  stacktext: {
+    fontWeight: "500",
     fontSize: 12,
-    fontWeight: "bold",
-  },
-  explain:{
-    paddingTop: 10,
-    width: "93%",
+    position: "absolute",
     alignItems: "flex-start",
+    left: 20,
+    top: 12,
   },
-  explainbox:{
+  stackpercent: {
+    color: "#6581c9",
+    fontWeight: "500",
+    fontSize: 12,
+    position: "absolute",
+    right: 15,
+    top: 12,
+  },
+  stackbar: {
+    position: "absolute",
+    backgroundColor: "#f4f4f4",
+    width: "90%",
+    height: 10,
+    borderRadius: 12,
+    bottom: 12,
+  },
+  stackline: {
+    backgroundColor: "#6581c9",
+    width: "10%",
+    height: "100%",
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  listContainer: {
     marginTop: 10,
     backgroundColor: "#fff",
-    borderRadius: 12,
-    color: "#595959",
-    alignItems: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-  },
-  textbox:{
-    marginTop: 10,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    color: "#595959",
-    alignItems: "flex-start",
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    flexDirection: "column",
-    flex:1,
     width: "93%",
-    gap:10,
+    alignItems: "flex-start",
+    borderRadius: 12,
+    paddingVertical: 10,
+  },
+  listItem: {
+    flexDirection: "row",
+    gap: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  bullet: {
+    color: "#6581c9",
+  },
+  itemText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#565656",
   },
 });
 
@@ -143,17 +111,92 @@ const stack = () => {
         <Header />
 
         <ScrollView
-          style={{ flex:1,  width: "100%" }}
+          style={{ flex: 1, width: "100%" }}
           contentContainerStyle={[
             styles.scrollContent,
             { paddingTop: 55, paddingBottom: 100 },
           ]}
           showsVerticalScrollIndicator={false}
         >
-            
+          <View style={styles.stackcontainer}>
+            <Text
+              style={{
+                color: "#000",
+                fontSize: 18,
+                fontWeight: "500",
+                marginLeft: 7,
+              }}
+            >
+              배우고 있는 기술
+            </Text>
+            <View style={styles.stackbox}>
+              <Text style={styles.stacktext}>ReactNative</Text>
+              <Text style={styles.stackpercent}>10%</Text>
+              <View style={styles.stackbar}>
+                <View style={styles.stackline}></View>
+              </View>
+            </View>
 
+            <View style={styles.stackbox}>
+              <Text style={styles.stacktext}>HTML/CSS</Text>
+              <Text style={styles.stackpercent}>15%</Text>
+              <View style={styles.stackbar}>
+                <View style={[styles.stackline, { width: "15%" }]}></View>
+              </View>
+            </View>
 
+            <View style={styles.stackbox}>
+              <Text style={styles.stacktext}>C</Text>
+              <Text style={styles.stackpercent}>90%</Text>
+              <View style={styles.stackbar}>
+                <View style={[styles.stackline, { width: "90%" }]}></View>
+              </View>
+            </View>
 
+            <View style={styles.stackbox}>
+              <Text style={styles.stacktext}>Python</Text>
+              <Text style={styles.stackpercent}>80%</Text>
+              <View style={styles.stackbar}>
+                <View style={[styles.stackline, { width: "80%" }]}></View>
+              </View>
+            </View>
+          </View>
+
+          <Text
+            style={{
+              color: "#000",
+              fontSize: 18,
+              fontWeight: "500",
+              alignSelf: "flex-start",
+              marginLeft: 20,
+              marginTop: 20,
+            }}
+          >
+            학습 스타일
+          </Text>
+
+          <View style={styles.listContainer}>
+            <View style={styles.listItem}>
+              <Text style={styles.bullet}>•</Text>
+              <Text style={styles.itemText}>
+                배운 내용을 바로 UI로 구현해보며 익히는 편
+              </Text>
+            </View>
+
+            <View style={styles.listItem}>
+              <Text style={styles.bullet}>•</Text>
+              <Text style={styles.itemText}>
+                기록하면서 공부하는 습관이 있음
+              </Text>
+            </View>
+
+            <View style={styles.listItem}>
+              <Text style={styles.bullet}>•</Text>
+              <Text style={styles.itemText}>
+                완벽보다 완성을 먼저 경험하려고 노력함
+              </Text>
+            </View>
+          </View>
         </ScrollView>
         <Tabbar />
       </View>
