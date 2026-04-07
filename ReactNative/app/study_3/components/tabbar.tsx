@@ -4,97 +4,97 @@ import { useRouter, usePathname } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const styles = StyleSheet.create({
-  bottomWrapper: {
-    position: "absolute",
-    bottom: 25,
-    width: "100%",
-    paddingHorizontal: 15,
-    zIndex: 10,
-    gap: 10,
-  },
-  miniPlayer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 15,
-    paddingVertical: 7,
-    backgroundColor: "#ffffff",
-    borderRadius: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  playerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  albumArt: {
-    width: 30,
-    height: 30,
-    backgroundColor: "#d1d1d1",
-    borderRadius: 8,
-  },
-  playerTextContainer: {
-    justifyContent: "center",
-  },
-  playerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 15,
-    marginRight: 5,
-  },
-  tabRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  mainTabBar: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#ffffff",
-    borderRadius: 40,
-    paddingVertical: 10,
-    marginRight: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  searchButton: {
-    width: 65,
-    height: 65,
-    backgroundColor: "#ffffff",
-    borderRadius: 35,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  tabItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
   activeBox: {
     backgroundColor: "#f0f0f0",
+  },
+  tabRow: {
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  searchButton: {
+    elevation: 5,
+    justifyContent: "center",
+    borderRadius: 35,
+    shadowOpacity: 0.1,
+    backgroundColor: "#ffffff",
+    width: 65,
+    alignItems: "center",
+    height: 65,
+    shadowOffset: { width: 0, height: 2 },
+    shadowColor: "#000",
+    shadowRadius: 5,
+  },
+  playerLeft: {
+    gap: 12,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  bottomWrapper: {
+    zIndex: 10,
+    width: "100%",
+    gap: 10,
+    paddingHorizontal: 15,
+    bottom: 25,
+    position: "absolute",
+  },
+  tabText: {
+    fontWeight: "bold",
+    fontSize: 10,
+    marginTop: 2,
+  },
+  albumArt: {
+    borderRadius: 8,
+    height: 30,
+    backgroundColor: "#d1d1d1",
+    width: 30,
+  },
+  mainTabBar: {
+    marginRight: 10,
+    backgroundColor: "#ffffff",
+    shadowOpacity: 0.1,
+    flex: 1,
+    elevation: 5,
+    shadowRadius: 5,
+    justifyContent: "space-around",
+    borderRadius: 40,
+    shadowOffset: { width: 0, height: 2 },
+    paddingVertical: 10,
+    flexDirection: "row",
+    shadowColor: "#000",
   },
   inactiveBox: {
     backgroundColor: "transparent",
   },
-  tabText: {
-    fontSize: 10,
-    marginTop: 2,
-    fontWeight: "bold",
+  playerRight: {
+    alignItems: "center",
+    marginRight: 5,
+    gap: 15,
+    flexDirection: "row",
+  },
+  miniPlayer: {
+    shadowRadius: 8,
+    paddingVertical: 7,
+    flexDirection: "row",
+    backgroundColor: "#ffffff",
+    shadowColor: "#000",
+    elevation: 5,
+    justifyContent: "space-between",
+    paddingHorizontal: 15,
+    shadowOpacity: 0.15,
+    alignItems: "center",
+    borderRadius: 30,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  tabItem: {
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignItems: "center",
+    paddingHorizontal: 12,
+    justifyContent: "center",
+  },
+  playerTextContainer: {
+    justifyContent: "center",
   },
 });
 
@@ -163,7 +163,10 @@ const Tabbar = () => {
               color={getTabColor("/study_3/new_music")}
             />
             <Text
-              style={[styles.tabText, { color: getTabColor("/study_3/new_music") }]}
+              style={[
+                styles.tabText,
+                { color: getTabColor("/study_3/new_music") },
+              ]}
             >
               새로운 음악
             </Text>
