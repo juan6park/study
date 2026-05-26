@@ -1,0 +1,452 @@
+
+<style>
+*{box-sizing:border-box}
+canvas{display:block}
+.topbar{display:flex;align-items:center;gap:8px;padding:10px 0 6px;flex-wrap:wrap}
+.mode-btn{padding:5px 16px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:transparent;cursor:pointer;font-size:12px;color:var(--color-text-secondary);transition:all .18s}
+.mode-btn.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.sep{width:1px;height:18px;background:var(--color-border-tertiary);margin:0 2px}
+.infobar{font-size:11px;color:var(--color-text-tertiary);min-height:16px;padding:2px 0 4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 0 2px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.legdot{width:8px;height:8px;border-radius:50%}
+.tt{position:absolute;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:10px;padding:10px 12px;font-size:12px;pointer-events:none;display:none;min-width:155px;max-width:195px;z-index:10}
+.tt.show{display:block}
+.tt-name{font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.tt-meta{color:var(--color-text-secondary);font-size:11px;margin-bottom:5px}
+.tt-badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;margin:0 2px 4px 0}
+.tt-btn{display:block;width:100%;padding:5px 8px;border:0.5px solid var(--color-border-secondary);border-radius:6px;background:transparent;cursor:pointer;font-size:11px;color:var(--color-text-secondary);text-align:left;pointer-events:all;margin-top:4px}
+.tt-btn:hover{background:var(--color-background-secondary)}
+.tt-btn.done{color:var(--color-text-success);border-color:var(--color-border-success)}
+</style>
+
+<div class="topbar">
+  <button class="mode-btn active" id="btn-add" onclick="setMode('add')">추가 모드</button>
+  <button class="mode-btn" id="btn-view" onclick="setMode('view')">뷰 모드</button>
+  <div class="sep"></div>
+  <span id="sim-status" style="font-size:11px;color:var(--color-text-tertiary)">시뮬레이션 수렴 중...</span>
+</div>
+
+<div style="position:relative">
+  <canvas id="c" width="680" height="460"></canvas>
+  <div class="tt" id="tt">
+    <div class="tt-name" id="tt-name"></div>
+    <div class="tt-meta" id="tt-meta"></div>
+    <div id="tt-badges"></div>
+    <button class="tt-btn" id="tt-btn" onclick="ttAction()"></button>
+  </div>
+</div>
+
+<div class="infobar" id="info"></div>
+<div class="legend" id="legend"></div>
+
+<script>
+const W=680,H=460;
+const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+const textCol=dark?'#b8b6ac':'#3d3d3a';
+const mutedCol=dark?'rgba(184,182,172,0.38)':'rgba(61,61,58,0.28)';
+function hex2rgb(h){return{r:parseInt(h.slice(1,3),16),g:parseInt(h.slice(3,5),16),b:parseInt(h.slice(5,7),16)}}
+function rgbaStr(hex,a){const{r,g,b}=hex2rgb(hex);return`rgba(${r},${g},${b},${a})`}
+
+const GENRES=[
+  {id:'g0',name:'Electronic', color:'#534AB7'},
+  {id:'g1',name:'Jazz',       color:'#0F6E56'},
+  {id:'g2',name:'Hip-hop',    color:'#993C1D'},
+  {id:'g3',name:'Indie Rock', color:'#993556'},
+  {id:'g4',name:'R&B / Soul', color:'#185FA5'},
+  {id:'g5',name:'Ambient',    color:'#3B6D11'},
+];
+
+// Genre cluster centers — spread around canvas
+const GCENTERS={
+  g0:{cx:160,cy:150}, g1:{cx:430,cy:105},
+  g2:{cx:565,cy:290}, g3:{cx:310,cy:370},
+  g4:{cx:120,cy:340}, g5:{cx:330,cy:205},
+};
+
+const ARTISTS=[
+  {id:'a0', name:'Aphex Twin',      gids:['g0'],      added:true},
+  {id:'a1', name:'Four Tet',        gids:['g0','g5'], added:true},
+  {id:'a2', name:'Floating Points', gids:['g0','g1'], added:false},
+  {id:'a3', name:'Caribou',         gids:['g5','g3'], added:false},
+  {id:'a4', name:'Miles Davis',     gids:['g1'],      added:true},
+  {id:'a5', name:'John Coltrane',   gids:['g1'],      added:true},
+  {id:'a6', name:'Herbie Hancock',  gids:['g1','g4'], added:false},
+  {id:'a7', name:'Kendrick Lamar',  gids:['g2'],      added:true},
+  {id:'a8', name:'J Dilla',         gids:['g2','g4'], added:false},
+  {id:'a9', name:'Radiohead',       gids:['g3'],      added:true},
+  {id:'a10',name:'Arcade Fire',     gids:['g3'],      added:false},
+  {id:'a11',name:'Frank Ocean',     gids:['g4','g2'], added:true},
+  {id:'a12',name:'Brian Eno',       gids:['g5','g0'], added:false},
+  {id:'a13',name:'Boards of Canada',gids:['g5'],      added:true},
+];
+
+const TRACKS=[
+  {id:'t0', name:'Windowlicker',      aid:'a0', added:true},
+  {id:'t1', name:'Come to Daddy',     aid:'a0', added:false},
+  {id:'t2', name:'Kilo',              aid:'a1', added:true},
+  {id:'t3', name:'Baby',              aid:'a1', added:false},
+  {id:'t4', name:'LesAlpx',           aid:'a2', added:false},
+  {id:'t5', name:"Can't Do Without",  aid:'a3', added:false},
+  {id:'t6', name:'So What',           aid:'a4', added:true},
+  {id:'t7', name:'Blue in Green',     aid:'a4', added:false},
+  {id:'t8', name:'A Love Supreme',    aid:'a5', added:true},
+  {id:'t9', name:'Chameleon',         aid:'a6', added:false},
+  {id:'t10',name:'HUMBLE.',           aid:'a7', added:true},
+  {id:'t11',name:'DNA.',              aid:'a7', added:false},
+  {id:'t12',name:'Donuts intro',      aid:'a8', added:false},
+  {id:'t13',name:'Karma Police',      aid:'a9', added:true},
+  {id:'t14',name:'Exit Music',        aid:'a9', added:false},
+  {id:'t15',name:'Wake Up',           aid:'a10',added:false},
+  {id:'t16',name:'Nights',            aid:'a11',added:true},
+  {id:'t17',name:'Self Control',      aid:'a11',added:false},
+  {id:'t18',name:'Music For Airports',aid:'a12',added:false},
+  {id:'t19',name:'Roygbiv',           aid:'a13',added:true},
+];
+
+const ALINKS=[
+  ['a0','a1'],['a0','a2'],['a1','a2'],['a1','a12'],['a1','a3'],
+  ['a4','a5'],['a4','a6'],['a5','a6'],['a4','a2'],
+  ['a7','a8'],['a7','a11'],['a8','a11'],
+  ['a9','a10'],['a3','a9'],
+  ['a12','a13'],['a12','a0'],
+  ['a6','a11'],
+];
+
+// ─── Physics nodes ───────────────────────────────────────────────
+const nodes = [];
+ARTISTS.forEach(ar=>{
+  // init pos: weighted avg of genre centers
+  let sx=0,sy=0;
+  ar.gids.forEach(gid=>{sx+=GCENTERS[gid].cx;sy+=GCENTERS[gid].cy;});
+  const cx=sx/ar.gids.length, cy=sy/ar.gids.length;
+  const jitter=()=>(Math.random()-0.5)*40;
+  nodes.push({...ar, x:cx+jitter(), y:cy+jitter(), vx:0, vy:0, isTrack:false});
+});
+TRACKS.forEach(t=>{
+  const ar=ARTISTS.find(a=>a.id===t.aid);
+  const an=nodes.find(n=>n.id===ar.id);
+  nodes.push({...t, x:an.x+(Math.random()-0.5)*30, y:an.y+(Math.random()-0.5)*30,
+    vx:0,vy:0, isTrack:true, gids:ar.gids});
+});
+
+function getNode(id){return nodes.find(n=>n.id===id)}
+function getGenre(id){return GENRES.find(g=>g.id===id)}
+
+// ─── Force simulation ─────────────────────────────────────────────
+const ARTIST_GENRE_STRENGTH = 0.012;
+const TRACK_ARTIST_STRENGTH = 0.06;
+const REPULSION = 900;
+const LINK_STRENGTH = 0.008;
+const DAMPING = 0.82;
+const TRACK_REPULSION = 300;
+const BORDER_PADDING = 40;
+let simRunning = true;
+let tickCount = 0;
+
+function simTick(){
+  nodes.forEach(n=>{n.vx=0;n.vy=0;});
+
+  // Artist → genre center attraction (multi-genre = pulled toward avg)
+  nodes.filter(n=>!n.isTrack).forEach(n=>{
+    let tx=0,ty=0;
+    n.gids.forEach(gid=>{
+      tx+=GCENTERS[gid].cx; ty+=GCENTERS[gid].cy;
+    });
+    tx/=n.gids.length; ty/=n.gids.length;
+    const dx=tx-n.x, dy=ty-n.y;
+    n.vx+=dx*ARTIST_GENRE_STRENGTH;
+    n.vy+=dy*ARTIST_GENRE_STRENGTH;
+  });
+
+  // Track → parent artist attraction
+  nodes.filter(n=>n.isTrack).forEach(t=>{
+    const an=getNode(t.aid);
+    if(!an)return;
+    const dx=an.x-t.x, dy=an.y-t.y;
+    const dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const target=28;
+    const force=(dist-target)*TRACK_ARTIST_STRENGTH;
+    t.vx+=dx/dist*force;
+    t.vy+=dy/dist*force;
+    an.vx-=dx/dist*force*0.3;
+    an.vy-=dy/dist*force*0.3;
+  });
+
+  // Artist↔Artist link attraction
+  ALINKS.forEach(([id1,id2])=>{
+    const n1=getNode(id1),n2=getNode(id2);
+    if(!n1||!n2)return;
+    const dx=n2.x-n1.x,dy=n2.y-n1.y;
+    n1.vx+=dx*LINK_STRENGTH; n1.vy+=dy*LINK_STRENGTH;
+    n2.vx-=dx*LINK_STRENGTH; n2.vy-=dy*LINK_STRENGTH;
+  });
+
+  // Node repulsion
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j];
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const dist2=dx*dx+dy*dy||1;
+      const dist=Math.sqrt(dist2);
+      const rep=(a.isTrack||b.isTrack)?TRACK_REPULSION:REPULSION;
+      const minD=(a.isTrack||b.isTrack)?20:35;
+      if(dist<minD*2){
+        const f=rep/(dist2);
+        a.vx-=dx/dist*f; a.vy-=dy/dist*f;
+        b.vx+=dx/dist*f; b.vy+=dy/dist*f;
+      }
+    }
+  }
+
+  // Border repulsion
+  nodes.forEach(n=>{
+    if(n.x<BORDER_PADDING)n.vx+=(BORDER_PADDING-n.x)*0.08;
+    if(n.x>W-BORDER_PADDING)n.vx-=(n.x-(W-BORDER_PADDING))*0.08;
+    if(n.y<BORDER_PADDING)n.vy+=(BORDER_PADDING-n.y)*0.08;
+    if(n.y>H-BORDER_PADDING)n.vy-=(n.y-(H-BORDER_PADDING))*0.08;
+  });
+
+  // Integrate
+  let totalKE=0;
+  nodes.forEach(n=>{
+    n.vx*=DAMPING; n.vy*=DAMPING;
+    n.x+=n.vx; n.y+=n.vy;
+    totalKE+=n.vx*n.vx+n.vy*n.vy;
+  });
+
+  tickCount++;
+  if(totalKE<0.15||tickCount>600){
+    simRunning=false;
+    document.getElementById('sim-status').textContent='';
+  }
+}
+
+// ─── Heatmap rendering ────────────────────────────────────────────
+let heatCanvas=null;
+function buildHeatmap(){
+  const hc=document.createElement('canvas');
+  hc.width=W;hc.height=H;
+  const hctx=hc.getContext('2d');
+  heatCanvas=hc;
+
+  const visArtists=mode==='view'
+    ? nodes.filter(n=>!n.isTrack&&n.added)
+    : nodes.filter(n=>!n.isTrack);
+
+  GENRES.forEach(g=>{
+    const members=visArtists.filter(n=>n.gids.includes(g.id));
+    if(!members.length)return;
+    const{r,g:gv,b}=hex2rgb(g.color);
+
+    members.forEach(n=>{
+      const weight=n.added?1.0:0.45;
+      const radius=mode==='view'?70:85;
+      const grad=hctx.createRadialGradient(n.x,n.y,0,n.x,n.y,radius);
+      grad.addColorStop(0,  `rgba(${r},${gv},${b},${0.13*weight})`);
+      grad.addColorStop(0.4,`rgba(${r},${gv},${b},${0.07*weight})`);
+      grad.addColorStop(0.75,`rgba(${r},${gv},${b},${0.025*weight})`);
+      grad.addColorStop(1,  `rgba(${r},${gv},${b},0)`);
+      hctx.beginPath();
+      hctx.arc(n.x,n.y,radius,0,Math.PI*2);
+      hctx.fillStyle=grad;
+      hctx.fill();
+    });
+  });
+  return hc;
+}
+
+// ─── Main draw ────────────────────────────────────────────────────
+const cv=document.getElementById('c');
+const ctx=cv.getContext('2d');
+let mode='add';
+let hovId=null, ttCurrent=null;
+let heatDirty=true;
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  if(heatDirty){buildHeatmap();heatDirty=false;}
+  if(heatCanvas)ctx.drawImage(heatCanvas,0,0);
+
+  // Genre labels — find centroid of member nodes
+  GENRES.forEach(g=>{
+    const visA=mode==='view'
+      ?nodes.filter(n=>!n.isTrack&&n.added&&n.gids.includes(g.id))
+      :nodes.filter(n=>!n.isTrack&&n.gids.includes(g.id));
+    if(!visA.length)return;
+    let cx=0,cy=0;
+    visA.forEach(n=>{cx+=n.x;cy+=n.y;});
+    cx/=visA.length;cy/=visA.length;
+    // label above centroid
+    const minY=Math.min(...visA.map(n=>n.y));
+    ctx.font='500 9px sans-serif';
+    ctx.fillStyle=rgbaStr(g.color,0.55);
+    ctx.textAlign='center';
+    ctx.fillText(g.name.toUpperCase(),cx,minY-18);
+    ctx.textAlign='left';
+  });
+
+  // Artist links
+  ALINKS.forEach(([id1,id2])=>{
+    const n1=getNode(id1),n2=getNode(id2);
+    if(!n1||!n2)return;
+    if(mode==='view'&&(!n1.added||!n2.added))return;
+    const both=n1.added&&n2.added;
+    const gc=getGenre(n1.gids[0]);
+    ctx.beginPath();ctx.moveTo(n1.x,n1.y);ctx.lineTo(n2.x,n2.y);
+    ctx.strokeStyle=rgbaStr(gc.color,both?0.28:0.1);
+    ctx.lineWidth=both?0.8:0.4;
+    ctx.setLineDash(both?[]:[3,4]);
+    ctx.stroke();ctx.setLineDash([]);
+  });
+
+  // Track edges
+  nodes.filter(n=>n.isTrack).forEach(t=>{
+    const an=getNode(t.aid);if(!an)return;
+    if(mode==='view'&&(!an.added||!t.added))return;
+    const gc=getGenre(t.gids[0]);
+    const vis=an.added&&t.added;
+    ctx.beginPath();ctx.moveTo(an.x,an.y);ctx.lineTo(t.x,t.y);
+    ctx.strokeStyle=rgbaStr(gc.color,vis?0.2:0.08);
+    ctx.lineWidth=vis?0.7:0.35;
+    ctx.setLineDash(vis?[]:[2,3]);
+    ctx.stroke();ctx.setLineDash([]);
+  });
+
+  // Track nodes
+  const visTracks=mode==='view'
+    ?nodes.filter(n=>n.isTrack&&getNode(n.aid)?.added&&n.added)
+    :nodes.filter(n=>n.isTrack);
+  visTracks.forEach(t=>{
+    const an=getNode(t.aid);if(!an)return;
+    const gc=getGenre(t.gids[0]);
+    const isHov=hovId===t.id;
+    const vis=an.added&&t.added;
+    const r=vis?3.5:2.5;
+    if(isHov){ctx.beginPath();ctx.arc(t.x,t.y,r+4,0,Math.PI*2);ctx.fillStyle=rgbaStr(gc.color,0.18);ctx.fill();}
+    ctx.beginPath();ctx.arc(t.x,t.y,r,0,Math.PI*2);
+    ctx.fillStyle=rgbaStr(gc.color,vis?0.82:0.28);ctx.fill();
+    if(vis){ctx.strokeStyle=dark?rgbaStr(gc.color,0.4):'rgba(255,255,255,0.75)';ctx.lineWidth=1;ctx.stroke();}
+    else if(mode==='add'){ctx.beginPath();ctx.arc(t.x,t.y,r+3,0,Math.PI*2);ctx.strokeStyle=rgbaStr(gc.color,0.16);ctx.lineWidth=0.6;ctx.stroke();}
+    if(isHov||vis){
+      ctx.font=`${vis?'500':'400'} ${vis?10:9}px sans-serif`;
+      ctx.fillStyle=vis?textCol:mutedCol;
+      ctx.fillText(t.name,t.x+r+4,t.y+4);
+    }
+  });
+
+  // Artist nodes
+  const visArtists=mode==='view'?nodes.filter(n=>!n.isTrack&&n.added):nodes.filter(n=>!n.isTrack);
+  visArtists.forEach(ar=>{
+    const gc=getGenre(ar.gids[0]);
+    const isHov=hovId===ar.id;
+    const r=ar.added?7:5;
+    const multi=ar.gids.length>1;
+    if(isHov){ctx.beginPath();ctx.arc(ar.x,ar.y,r+6,0,Math.PI*2);ctx.fillStyle=rgbaStr(gc.color,0.15);ctx.fill();}
+    if(multi&&ar.added){
+      const gc2=getGenre(ar.gids[1]);
+      ctx.beginPath();ctx.arc(ar.x,ar.y,r+3.5,0,Math.PI*2);
+      ctx.strokeStyle=rgbaStr(gc2.color,0.55);
+      ctx.lineWidth=1.5;ctx.setLineDash([2,2]);ctx.stroke();ctx.setLineDash([]);
+    }
+    ctx.beginPath();ctx.arc(ar.x,ar.y,r,0,Math.PI*2);
+    if(ar.added){
+      ctx.fillStyle=gc.color;ctx.fill();
+      ctx.strokeStyle=dark?rgbaStr(gc.color,0.4):'rgba(255,255,255,0.8)';ctx.lineWidth=1.5;ctx.stroke();
+    } else {
+      ctx.fillStyle=rgbaStr(gc.color,0.3);ctx.fill();
+      if(mode==='add'){ctx.beginPath();ctx.arc(ar.x,ar.y,r+4,0,Math.PI*2);ctx.strokeStyle=rgbaStr(gc.color,0.16);ctx.lineWidth=0.7;ctx.stroke();}
+    }
+    if(ar.added||isHov){
+      ctx.font=`${ar.added?'500':'400'} ${ar.added?11:10}px sans-serif`;
+      ctx.fillStyle=ar.added?textCol:mutedCol;
+      ctx.fillText(ar.name,ar.x+r+5,ar.y+4);
+    }
+  });
+}
+
+// ─── Animation loop ───────────────────────────────────────────────
+let rafId=null;
+function loop(){
+  if(simRunning){simTick();heatDirty=true;}
+  draw();
+  if(simRunning)rafId=requestAnimationFrame(loop);
+  else draw(); // final static draw
+}
+loop();
+
+// ─── Interaction ──────────────────────────────────────────────────
+function hitTest(mx,my){
+  const visA=mode==='view'?nodes.filter(n=>!n.isTrack&&n.added):nodes.filter(n=>!n.isTrack);
+  for(const ar of visA){const dx=mx-ar.x,dy=my-ar.y;if(dx*dx+dy*dy<16*16)return{type:'artist',node:ar};}
+  const visT=mode==='view'?nodes.filter(n=>n.isTrack&&getNode(n.aid)?.added&&n.added):nodes.filter(n=>n.isTrack);
+  for(const t of visT){const dx=mx-t.x,dy=my-t.y;if(dx*dx+dy*dy<9*9)return{type:'track',node:t};}
+  return null;
+}
+
+const tt=document.getElementById('tt');
+cv.addEventListener('mousemove',e=>{
+  const rect=cv.getBoundingClientRect();
+  const scale=W/rect.width;
+  const mx=(e.clientX-rect.left)*scale, my=(e.clientY-rect.top)*scale;
+  const hit=hitTest(mx,my);
+  hovId=hit?hit.node.id:null;
+  cv.style.cursor=hit?'pointer':'default';
+  if(hit){
+    ttCurrent=hit;
+    const n=hit.node;
+    document.getElementById('tt-name').textContent=n.name;
+    document.getElementById('tt-meta').textContent=hit.type==='artist'?'아티스트':`트랙 · ${getNode(n.aid)?.name||''}`;
+    document.getElementById('tt-badges').innerHTML=n.gids.map(gid=>{
+      const g=getGenre(gid);
+      return`<span class="tt-badge" style="background:${rgbaStr(g.color,0.13)};color:${g.color}">${g.name}</span>`;
+    }).join('');
+    const btn=document.getElementById('tt-btn');
+    const label=hit.type==='artist'?'아티스트':'트랙';
+    btn.textContent=n.added?'이미 추가됨':`+ ${label} 추가`;
+    btn.className='tt-btn'+(n.added?' done':'');
+    btn.style.display=mode==='add'?'block':'none';
+    const ds=rect.width/W;
+    tt.style.left=Math.min(n.x*ds+12,rect.width-205)+'px';
+    tt.style.top=Math.max(n.y*ds-115,0)+'px';
+    tt.classList.add('show');
+  } else {
+    tt.classList.remove('show');ttCurrent=null;
+  }
+  document.getElementById('info').textContent=hit?(mode==='add'?(hit.node.added?'추가됨':'클릭하여 추가'):''):'';
+  if(!simRunning)draw();
+});
+
+cv.addEventListener('mouseleave',()=>{hovId=null;tt.classList.remove('show');ttCurrent=null;if(!simRunning)draw();});
+
+cv.addEventListener('click',e=>{
+  if(mode!=='add'||!ttCurrent)return;
+  if(ttCurrent.node.added)return;
+  ttCurrent.node.added=true;
+  heatDirty=true;
+  const btn=document.getElementById('tt-btn');
+  btn.textContent='이미 추가됨';btn.className='tt-btn done';
+  document.getElementById('info').textContent=`${ttCurrent.node.name} 추가됨`;
+  if(!simRunning)draw();
+});
+
+function ttAction(){
+  if(!ttCurrent||mode!=='add'||ttCurrent.node.added)return;
+  ttCurrent.node.added=true;
+  heatDirty=true;
+  document.getElementById('tt-btn').textContent='이미 추가됨';
+  document.getElementById('tt-btn').className='tt-btn done';
+  document.getElementById('info').textContent=`${ttCurrent.node.name} 추가됨`;
+  if(!simRunning)draw();
+}
+
+function setMode(m){
+  mode=m;tt.classList.remove('show');ttCurrent=null;heatDirty=true;
+  document.getElementById('btn-add').classList.toggle('active',m==='add');
+  document.getElementById('btn-view').classList.toggle('active',m==='view');
+  if(!simRunning)draw();
+}
+
+document.getElementById('legend').innerHTML=GENRES.map(g=>`<div class="leg"><span class="legdot" style="background:${g.color}"></span><span>${g.name}</span></div>`).join('');
+</script>
